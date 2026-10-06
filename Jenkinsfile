@@ -42,8 +42,10 @@ pipeline {
                 ]) {
                     sh '''
                         echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
                         docker push vansh2083/restaurant-reservation-backend:latest
                         docker push vansh2083/restaurant-reservation-frontend:latest
+
                         docker logout
                     '''
                 }
@@ -53,8 +55,8 @@ pipeline {
         stage('Deploy Locally') {
             steps {
                 sh '''
-                    docker compose pull backend frontend
-                    docker compose up -d backend frontend
+                    docker compose -p restaurant-reservation-system pull backend frontend
+                    docker compose -p restaurant-reservation-system up -d --no-deps backend frontend
                 '''
             }
         }
