@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                echo 'Code already checked out from GitHub'
+                echo 'Code checked out from GitHub'
             }
         }
 
@@ -47,6 +47,15 @@ pipeline {
                         docker logout
                     '''
                 }
+            }
+        }
+
+        stage('Deploy Locally') {
+            steps {
+                sh '''
+                    docker compose pull backend frontend
+                    docker compose up -d backend frontend
+                '''
             }
         }
     }
