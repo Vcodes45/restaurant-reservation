@@ -1,11 +1,21 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    }
+
     stages {
 
         stage('Checkout Code') {
             steps {
                 echo 'Code already checked out from GitHub'
+            }
+        }
+
+        stage('Check Docker') {
+            steps {
+                sh 'docker --version'
             }
         }
 
@@ -23,10 +33,20 @@ pipeline {
 
         stage('Push Images to Docker Hub') {
             steps {
-                sh '''
-                  docker push vansh2083/restaurant-reservation-backend:latest
-                  docker push vansh2083/restaurant-reservation-frontend:latest
-                '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'docker-hub-credentials',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        docker push vansh2083/restaurant-reservation-backend:latest
+                        docker push vansh2083/restaurant-reservation-frontend:latest
+                        docker logout
+                    '''
+                }
             }
         }
     }
